@@ -419,8 +419,26 @@ namespace rubinius {
 
   Fiber* Thread::root_fiber(STATE, GCToken gct, CallFrame* calling_environment) {
 #ifdef RBX_FIBER_ENABLED
-    // TODO: probably need more checks here and to instantiate?
-    return state->vm()->root_fiber.get();
+    Fiber* fib = vm_->root_fiber.get();
+
+    // Lazily allocate a root fiber.
+    // TODO: this is quite a duplication of Fiber::current
+    if(fib->nil_p()) {
+      fib = state->new_object<Fiber>(G(fiber));
+      fib->prev(state, nil<Fiber>());
+      fib->locals(state, nil<LookupTable>());
+      fib->root_ = true;
+      fib->status_ = Fiber::eRunning;
+
+      fib->data_ = state->vm()->new_fiber_data(true);
+
+      state->memory()->needs_finalization(fib, (FinalizerFunction)&Fiber::finalize);
+
+      vm_->current_fiber.set(fib);
+      vm_->root_fiber.set(fib);
+    }
+
+    return fib;
 #else
     return static_cast<Fiber*>(Primitives::failure());
 #endif

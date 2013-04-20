@@ -26,8 +26,8 @@ namespace rubinius {
     Fiber* prev_; // slot
     Exception* exception_; // slot
     LookupTable* locals_; // slot
+  public:
     Status status_;
-
     bool root_;
 
     FiberData* data_;
