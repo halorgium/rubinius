@@ -40,11 +40,6 @@ module Rubinius
       raise PrimitiveFailure, "Rubinius::Fiber#transfer failed"
     end
 
-    def alive?
-      # FIXME: why is the ivar present after death but not before
-      !@dead
-    end
-
     def raise
       raise "TODO: implement me"
     end
