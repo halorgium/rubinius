@@ -2,13 +2,6 @@ require File.expand_path('../../../spec_helper', __FILE__)
 #require File.expand_path('../fixtures/classes', __FILE__)
 
 describe "Fiber#[]=" do
-  ruby_version_is ""..."1.9" do
-    it "raises exceptions on the wrong type of keys" do
-      lambda { Fiber.current[nil] = true }.should raise_error(TypeError)
-      lambda { Fiber.current[5] = true }.should raise_error(ArgumentError)
-    end
-  end
-
   ruby_version_is "1.9" do
     it "raises exceptions on the wrong type of keys" do
       lambda { Fiber.current[nil] = true }.should raise_error(TypeError)
