@@ -4,13 +4,13 @@ require File.expand_path('../../../spec_helper', __FILE__)
 describe "Fiber#keys" do
   ruby_version_is "1.9" do
     it "returns an array of the names of the thread-local variables as symbols" do
-      th = Fiber.new do
+      fib = Fiber.new do
         Fiber.current["cat"] = 'woof'
         Fiber.current[:cat] = 'meow'
         Fiber.current[:dog] = 'woof'
       end
-      th.resume
-      th.keys.sort_by {|x| x.to_s}.should == [:cat,:dog]
+      fib.resume
+      fib.keys.sort_by {|x| x.to_s}.should == [:cat,:dog]
     end
 
     it "is not shared across fibers" do
@@ -30,12 +30,12 @@ describe "Fiber#keys" do
 
     it "stores a local in another thread when in a fiber" do
       fib = Fiber.new do
-        t = Fiber.new do
+        t = Thread.new do
           sleep
           Fiber.current.keys.should include(:value)
         end
 
-        Fiber.pass while t.status and t.status != "sleep"
+        Thread.pass while t.status and t.status != "sleep"
         t[:value] = 1
         t.wakeup
         t.join
