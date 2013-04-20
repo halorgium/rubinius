@@ -1,14 +1,16 @@
 require File.expand_path('../../../spec_helper', __FILE__)
-require File.expand_path('../fixtures/classes', __FILE__)
-require File.expand_path('../../../shared/kernel/raise', __FILE__)
+#require File.expand_path('../fixtures/classes', __FILE__)
+require File.expand_path('../../../ruby/shared/kernel/raise', __FILE__)
+
+__END__
 
 ruby_version_is "1.9" do
-  describe "Thread#raise" do
-    it "ignores dead threads" do
-      t = Thread.new { :dead }
-      Thread.pass while t.alive?
-      lambda {t.raise("Kill the thread")}.should_not raise_error
-      lambda {t.value}.should_not raise_error
+  describe "Fiber#raise" do
+    it "ignores dead fibers" do
+      f = Fiber.new { :dead }
+      f.resume while f.alive?
+      lambda {f.raise("Kill the thread")}.should_not raise_error
+      lambda {f.resume}.should_not raise_error
     end
   end
 

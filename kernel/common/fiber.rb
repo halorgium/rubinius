@@ -45,6 +45,10 @@ module Rubinius
       !@dead
     end
 
+    def raise
+      raise "TODO: implement me"
+    end
+
     def status
       Rubinius.primitive :fiber_status
       raise PrimitiveFailure, "Rubinius::Fiber#status failed"

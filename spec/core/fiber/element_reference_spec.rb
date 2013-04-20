@@ -24,6 +24,9 @@ describe "Fiber#[]" do
       f2[:value].should == 2
     end
 
+    it "is the same values as Thread#[]" do
+    end
+
     it "is accessable using strings or symbols" do
       f1 = Fiber.new do
         Fiber.current[:value] = 1
