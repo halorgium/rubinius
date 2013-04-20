@@ -417,6 +417,16 @@ namespace rubinius {
     return Tuple::from(state, 3, Fixnum::from(cf->ip()), cf->compiled_code, scope);
   }
 
+  Fiber* Thread::root_fiber(STATE, GCToken gct, CallFrame* calling_environment) {
+#ifdef RBX_FIBER_ENABLED
+    // TODO: probably need more checks here and to instantiate?
+    return state->vm()->root_fiber.get();
+#else
+    return static_cast<Fiber*>(Primitives::failure());
+#endif
+
+  }
+
   Array* Thread::mri_backtrace(STATE, GCToken gct, CallFrame* calling_environment) {
     utilities::thread::SpinLock::LockGuard lg(init_lock_);
 

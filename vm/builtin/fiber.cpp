@@ -289,17 +289,16 @@ namespace rubinius {
 
   Array* Fiber::mri_backtrace(STATE, GCToken gct, CallFrame* calling_environment) {
 #ifdef RBX_FIBER_ENABLED
-    VM *vm_ = data_->thread();
-    Thread *thread_ = vm_->thread.get();
-    utilities::thread::SpinLock::LockGuard lg(thread_->init_lock_);
+    VM* vm_ = data_->thread();
+    Thread* thread_ = vm_->thread.get();
 
     VM* vm = vm_;
     if(!vm) return nil<Array>();
-    StopTheWorld stop(state, gct, calling_environment);
+    if (status_ == Fiber::eRunning) {
+      return thread_->mri_backtrace(state, gct, calling_environment);
+    }
 
-    CallFrame* cf = vm->saved_call_frame();
-
-    return Location::mri_backtrace(state, cf);
+    return Location::mri_backtrace(state, call_frame());
 #else
     return Primitives::failure();
 #endif

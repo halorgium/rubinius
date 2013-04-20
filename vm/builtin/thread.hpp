@@ -44,10 +44,7 @@ namespace rubinius {
 
     LookupTable* locals_; // slot
 
-    public:
     utilities::thread::SpinLock init_lock_;
-
-    private:
 
     /// Whether this is an internal VM thread that should
     /// not be exposed in Ruby land but does need to be a
@@ -208,6 +205,10 @@ namespace rubinius {
 
     // Rubinius.primitive :thread_context
     Tuple* context(STATE);
+
+    // TODO: i don't know if this is the correct method signature
+    // Rubinius.primitive :thread_root_fiber
+    Fiber* root_fiber(STATE, GCToken gct, CallFrame* calling_environment);
 
     // Rubinius.primitive :thread_mri_backtrace
     Array* mri_backtrace(STATE, GCToken gct, CallFrame* calling_environment);
