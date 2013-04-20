@@ -1,6 +1,7 @@
 require File.expand_path('../../../spec_helper', __FILE__)
-require File.expand_path('../fixtures/classes', __FILE__)
+#require File.expand_path('../fixtures/classes', __FILE__)
 
+__END__
 describe "Thread::list" do
   it "includes the current and main thread" do
     Thread.list.should include(Thread.current)

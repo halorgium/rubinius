@@ -97,11 +97,20 @@ namespace rubinius {
     // Rubinius.primitive :fiber_s_current
     static Fiber* current(STATE);
 
+    // Rubinius.primitive :fiber_s_root
+    static Fiber* root(STATE);
+
     // Rubinius.primitive :fiber_resume
     Object* resume(STATE, Arguments& args, CallFrame* calling_environment);
 
     // Rubinius.primitive :fiber_transfer
     Object* transfer(STATE, Arguments& args, CallFrame* calling_environment);
+
+    // Rubinius.primitive :fiber_status
+    String* status(STATE, CallFrame* calling_environment);
+
+    // Rubinius.primitive :fiber_mri_backtrace
+    Array* mri_backtrace(STATE, GCToken gct, CallFrame* calling_environment);
 
     // Rubinius.primitive :fiber_s_yield
     static Object* s_yield(STATE, Arguments& args, CallFrame* calling_environment);

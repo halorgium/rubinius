@@ -9,6 +9,8 @@
 #include "builtin/class.hpp"
 #include "builtin/integer.hpp"
 #include "builtin/exception.hpp"
+#include "builtin/location.hpp"
+#include "builtin/string.hpp"
 
 #include "objectmemory.hpp"
 #include "gc/gc.hpp"
@@ -36,6 +38,32 @@ namespace rubinius {
   Fiber* Fiber::current(STATE) {
 #ifdef RBX_FIBER_ENABLED
     Fiber* fib = state->vm()->current_fiber.get();
+
+    // Lazily allocate a root fiber.
+    if(fib->nil_p()) {
+      fib = state->new_object<Fiber>(G(fiber));
+      fib->prev(state, nil<Fiber>());
+      fib->locals(state, nil<LookupTable>());
+      fib->root_ = true;
+      fib->status_ = Fiber::eRunning;
+
+      fib->data_ = state->vm()->new_fiber_data(true);
+
+      state->memory()->needs_finalization(fib, (FinalizerFunction)&Fiber::finalize);
+
+      state->vm()->current_fiber.set(fib);
+      state->vm()->root_fiber.set(fib);
+    }
+
+    return fib;
+#else
+    return nil<Fiber>();
+#endif
+  }
+
+  Fiber* Fiber::root(STATE) {
+#ifdef RBX_FIBER_ENABLED
+    Fiber* fib = state->vm()->root_fiber.get();
 
     // Lazily allocate a root fiber.
     if(fib->nil_p()) {
@@ -240,6 +268,38 @@ namespace rubinius {
     case 1:  return ret->get(state, 0);
     default: return ret;
     }
+#else
+    return Primitives::failure();
+#endif
+  }
+
+  String* Fiber::status(STATE, CallFrame* calling_environment) {
+#ifdef RBX_FIBER_ENABLED
+    switch(status_) {
+    case Fiber::eSleeping: return String::create(state, "sleeping");
+    case Fiber::eRunning:  return String::create(state, "running");
+    case Fiber::eDead:     return String::create(state, "dead");
+    default:               return String::create(state, "unknown");
+    }
+#else
+    return Primitives::failure();
+#endif
+  }
+
+  Array* Fiber::mri_backtrace(STATE, GCToken gct, CallFrame* calling_environment) {
+#ifdef RBX_FIBER_ENABLED
+    VM *vm_ = data_->thread();
+    /*
+    utilities::thread::SpinLock::LockGuard lg(vm_->init_lock_);
+    */
+
+    VM* vm = vm_;
+    if(!vm) return nil<Array>();
+    StopTheWorld stop(state, gct, calling_environment);
+
+    CallFrame* cf = vm->saved_call_frame();
+
+    return Location::mri_backtrace(state, cf);
 #else
     return Primitives::failure();
 #endif
