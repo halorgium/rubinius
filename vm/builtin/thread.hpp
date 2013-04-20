@@ -44,7 +44,10 @@ namespace rubinius {
 
     LookupTable* locals_; // slot
 
+    public:
     utilities::thread::SpinLock init_lock_;
+
+    private:
 
     /// Whether this is an internal VM thread that should
     /// not be exposed in Ruby land but does need to be a

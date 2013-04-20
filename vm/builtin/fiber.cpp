@@ -11,6 +11,7 @@
 #include "builtin/exception.hpp"
 #include "builtin/location.hpp"
 #include "builtin/string.hpp"
+#include "builtin/thread.hpp"
 
 #include "objectmemory.hpp"
 #include "gc/gc.hpp"
@@ -289,9 +290,8 @@ namespace rubinius {
   Array* Fiber::mri_backtrace(STATE, GCToken gct, CallFrame* calling_environment) {
 #ifdef RBX_FIBER_ENABLED
     VM *vm_ = data_->thread();
-    /*
-    utilities::thread::SpinLock::LockGuard lg(vm_->init_lock_);
-    */
+    Thread *thread_ = vm_->thread.get();
+    utilities::thread::SpinLock::LockGuard lg(thread_->init_lock_);
 
     VM* vm = vm_;
     if(!vm) return nil<Array>();
